@@ -14,6 +14,7 @@ function multiplyAndCountDigits(number) {
         for (let index = 0; index < number.toString().length; index++) {
             res *= 2;
         }
+
     } else {
         console.log("Error. Not a number")
         res = null
