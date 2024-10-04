@@ -2,19 +2,19 @@ import { IsString, IsOptional, IsInt, IsBoolean } from 'class-validator';
 import { IUpdateUserPartialInput } from '../interfaces/update-user-partial-input.interface';
 
 export class UpdateUserPartialDto implements IUpdateUserPartialInput {
-  @IsString()
   @IsOptional()
-  firstName: string | null;
-
   @IsString()
-  @IsOptional()
-  lastName: string | null;
+  firstName?: string | null;
 
+  @IsOptional()
+  @IsString()
+  lastName?: string | null;
+
+  @IsOptional()
   @IsInt()
-  @IsOptional()
-  age: number | null;
+  age?: number | null;
 
-  @IsBoolean()
   @IsOptional()
-  isStudent: boolean | null;
+  @IsBoolean()
+  isStudent?: boolean | null;
 }
