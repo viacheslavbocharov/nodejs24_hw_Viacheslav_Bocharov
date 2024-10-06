@@ -3,5 +3,6 @@ export interface ICreateUserInput {
   lastName: string;
   age: number;
   isStudent: boolean;
+  userName: string;
   password: string;
 }

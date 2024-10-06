@@ -30,6 +30,20 @@ export class UsersService {
     return user;
   }
 
+  findOneByUserName(userName: string): IUser {
+    const user = users.find((user) => user.userName === userName);
+
+    if (!user) {
+      throw new NotFoundException(`${userName} not found`);
+    }
+    return user;
+  }
+
+  findOneAndUpdate(id: number, updateBody: IUpdateUserPartialInput): IUser {
+    const user = this.findOne(id);
+    return this.updatePartially(user.id, updateBody);
+  }
+
   updatePartially(id: number, dto: IUpdateUserPartialInput): IUser {
     const userIndex = users.findIndex((user) => user.id === id);
     if (userIndex === -1) {

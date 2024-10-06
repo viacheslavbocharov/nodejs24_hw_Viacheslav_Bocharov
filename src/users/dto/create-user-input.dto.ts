@@ -15,5 +15,8 @@ export class CreateUserDto implements ICreateUserInput {
   isStudent: boolean;
 
   @IsString()
+  userName: string;
+
+  @IsString()
   password: string;
 }
