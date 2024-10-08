@@ -1,0 +1,20 @@
+
+
+{
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdCIsImlhdCI6MTcyODQyOTI2NiwiZXhwIjoxNzI4NDMwMTY2fQ.roDTpSwnMBTMK_iAD2FUVKY0lNMmbVu6FoKaW9T_rT4",
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdCIsImlhdCI6MTcyODQyOTI2NiwiZXhwIjoxNzI5MDM0MDY2fQ.dmUK7BnhjPhOxKQR7NFYlr_TPbc4FYiqJA5-uzcTtr8"
+}
+
+{
+    "email": "test",
+    "password": "123"
+}
+
+{
+    "firstName": "John",
+    "lastName": "Doe",
+    "age": 22,
+    "isStudent": true,
+    "email": "test",
+    "password": "123"
+  }

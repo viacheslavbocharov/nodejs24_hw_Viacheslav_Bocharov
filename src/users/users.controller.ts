@@ -8,36 +8,39 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user-input.dto';
-import { UpdateUserDto } from './dto/update-user-input.dto';
-import { UpdateUserPartialDto } from './dto/update-user-partial-input.dto';
+import { CreateUserInputDto } from './dto/create-user-input.dto';
+import { UpdateUserInputDto } from './dto/update-user-input.dto';
+import { UpdateUserPartialInputDto } from './dto/update-user-partial-input.dto';
 import { IUser } from './interfaces/user.interface';
+import { AccessTokenGuard } from '../guards/access-token.guard';
 
+@UseGuards(AccessTokenGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto): IUser {
-    return this.usersService.create(createUserDto);
+  @Get(':id')
+  getUser(@Param('id', ParseIntPipe) id: number): IUser {
+    return this.usersService.findOneById(id);
   }
 
   @Get()
-  findAll(): IUser[] {
-    return this.usersService.findAll();
+  listUsers(): IUser[] {
+    return this.usersService.list();
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): IUser {
-    return this.usersService.findOne(id);
+  @Post()
+  create(@Body() createUserInputDto: CreateUserInputDto): IUser {
+    return this.usersService.create(createUserInputDto);
   }
 
   @Patch(':id')
-  updatePartially(
+  updateUserPartially(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserPartialDto,
+    @Body() updateUserDto: UpdateUserPartialInputDto,
   ): IUser {
     return this.usersService.updatePartially(id, updateUserDto);
   }
@@ -45,13 +48,13 @@ export class UsersController {
   @Put(':id')
   updateUser(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateUserDto: UpdateUserInputDto,
   ): IUser {
     return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  deleteUser(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
   }
 }

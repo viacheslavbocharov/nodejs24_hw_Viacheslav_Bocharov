@@ -1,41 +1,37 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Req } from '@nestjs/common';
+// import { Request } from 'express';
+import { CustomRequest } from '../common/interfaces/custom-request.interface';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '../users/dto/create-user-input.dto';
-import { SignInAuthDto } from '../auth/dto/signin-auth.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { RequestWithUser } from './interface/request-with-user.interface';
+import { SignInUserInputDto } from './dto/sign-in-user-input.dto';
+import { AccessTokenGuard } from '../guards/access-token.guard';
+import { RefreshTokenGuard } from '../guards/refresh-token.guard';
+import { CreateUserInputDto } from 'src/users/dto/create-user-input.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
-  @Post('signup')
-  async signUp(@Body() createUserDto: CreateUserDto) {
-    return this.authService.signUp(createUserDto);
+  @Post('sign-up')
+  async signup(@Body() signUpUserDto: CreateUserInputDto) {
+    return this.authService.signUp(signUpUserDto);
   }
 
-  @Post('signin')
-  async signIn(@Body() signInAuthDto: SignInAuthDto) {
-    return this.authService.signIn(signInAuthDto);
+  @Post('sign-in')
+  async signin(@Body() signInUserDto: SignInUserInputDto) {
+    return this.authService.signIn(signInUserDto);
   }
 
+  @UseGuards(AccessTokenGuard)
   @Post('logout')
-  @UseGuards(AuthGuard('jwt'))
-  logout(@Req() req: RequestWithUser) {
-    this.authService.logout(req.user.userId);
+  async logout(@Req() req: CustomRequest) {
+    this.authService.logout(req.user['sub']);
   }
 
-  // @Post('refresh')
-  // refresh(@Body() body: { refreshToken: string }) {
-  //   // Логика обновления access token с помощью refresh token
-  //   return { accessToken: 'newAccessToken' };
-  // }
-
-  // @UseGuards(AuthGuard('jwt-refresh'))
-  // @Post('refresh')
-  // refreshTokens(@Req() req: RequestWithUser) {
-  //   const userId = req.user['sub'];
-  //   const refreshToken = req.user['refreshToken'];
-  //   return this.authService.refreshTokens(userId, refreshToken);
-  // }
+  @UseGuards(RefreshTokenGuard)
+  @Post('refresh')
+  refreshTokens(@Req() req: CustomRequest) {
+    const userId = req.user['sub'];
+    const refreshToken = req.user['refreshToken'];
+    return this.authService.refreshTokens(userId, refreshToken);
+  }
 }

@@ -1,50 +1,147 @@
 import {
+  BadRequestException,
+  ForbiddenException,
   Injectable,
-  UnauthorizedException,
   Logger,
-  // ForbiddenException,
 } from '@nestjs/common';
-// import * as argon2 from 'argon2';
+import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
-import { CreateUserDto } from '../users/dto/create-user-input.dto';
-import { SignInAuthDto } from '../auth/dto/signin-auth.dto';
-// import * as bcrypt from 'bcryptjs';
-import { IUser } from '../users/interfaces/user.interface';
+import { ConfigService } from '@nestjs/config';
+import { UsersService } from 'src/users/users.service';
+import { ICreateUserInput } from 'src/users/interfaces/create-user-input.interface';
+import { ISignInUserInput } from './interface/sign-in-user.interface';
+import { ISignUpUserResponse } from './interface/sign-up-user-response.interface';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
-    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly usersService: UsersService,
   ) {}
 
-  async signUp(createUserDto: CreateUserDto): Promise<IUser> {
-    const user = await this.usersService.create(createUserDto);
-    return user;
+  async signUp(body: ICreateUserInput): Promise<ISignUpUserResponse> {
+    const { firstName, lastName, age, isStudent, email, password } = body;
+
+    this.logger.log(`Going to sign up new user with email: ${email}`);
+
+    const user = this.usersService.findOneWithoutExeption(email);
+
+    if (user) {
+      throw new BadRequestException(`User with email: ${email} already exists`);
+    }
+
+    // Hash password
+    const hash = await this.hashData(password);
+
+    const newUser = this.usersService.create({
+      firstName,
+      lastName,
+      age,
+      isStudent,
+      email,
+      password: hash,
+    });
+
+    const tokens = await this.getTokens(newUser.id, newUser.email);
+
+    await this.updateRefreshToken(newUser.id, tokens.refreshToken);
+
+    this.logger.log(`User with email: ${newUser.email} successfully signed up`);
+
+    return tokens;
   }
 
-  async signIn(signInAuthDto: SignInAuthDto): Promise<{ accessToken: string }> {
-    const user = await this.usersService.findOneByUserName(
-      signInAuthDto.userName,
-    );
-    if (!user) {
-      throw new UnauthorizedException('Invalid username');
-    }
+  async signIn(body: ISignInUserInput) {
+    const { email, password } = body;
 
-    if (!(user.password === signInAuthDto.password)) {
-      throw new UnauthorizedException('Invalid password');
-    }
+    const user = this.usersService.findOneByEmail(email);
 
-    const payload = { username: user.firstName, sub: user.id };
-    return {
-      accessToken: this.jwtService.sign(payload),
-    };
+    if (!user) throw new BadRequestException('User does not exist');
+
+    const passwordMatches = await argon2.verify(user.password, password);
+
+    if (!passwordMatches)
+      throw new BadRequestException('Password is incorrect');
+
+    const tokens = await this.getTokens(user.id, email);
+
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
   }
 
   async logout(userId: number) {
-    return this.usersService.findOneAndUpdate(userId, { accessToken: null });
+    return this.usersService.findOneAndUpdate(userId, { refreshToken: null });
+  }
+
+  hashData(data: string) {
+    return argon2.hash(data);
+  }
+
+  async updateRefreshToken(userId: number, refreshToken: string) {
+    const hashedRefreshToken = await this.hashData(refreshToken);
+
+    await this.usersService.findOneAndUpdate(userId, {
+      refreshToken: hashedRefreshToken,
+    });
+  }
+
+  async getTokens(userId: number, email: string) {
+    this.logger.log(`Going to generate tokens for user with email: ${email}`);
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          email,
+        },
+        {
+          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_ACCESS_SECRET_EXPIRE'),
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          email,
+        },
+        {
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+          expiresIn: this.configService.get<string>(
+            'JWT_REFRESH_SECRET_EXPIRE',
+          ),
+        },
+      ),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async refreshTokens(userId: number, refreshToken: string) {
+    this.logger.log(`Going to generate tokens for user with id: ${userId}`);
+
+    const user = this.usersService.findOneById(userId);
+
+    if (!user || !user.refreshToken)
+      throw new ForbiddenException('Access Denied');
+
+    const refreshTokenMatches = await argon2.verify(
+      user.refreshToken,
+      refreshToken,
+    );
+
+    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+
+    const tokens = await this.getTokens(user.id, user.firstName);
+
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
   }
 }

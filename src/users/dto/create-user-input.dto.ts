@@ -1,7 +1,7 @@
 import { IsBoolean, IsInt, IsString } from 'class-validator';
 import { ICreateUserInput } from '../interfaces/create-user-input.interface';
 
-export class CreateUserDto implements ICreateUserInput {
+export class CreateUserInputDto implements ICreateUserInput {
   @IsString()
   firstName: string;
 
@@ -15,7 +15,7 @@ export class CreateUserDto implements ICreateUserInput {
   isStudent: boolean;
 
   @IsString()
-  userName: string;
+  email: string;
 
   @IsString()
   password: string;

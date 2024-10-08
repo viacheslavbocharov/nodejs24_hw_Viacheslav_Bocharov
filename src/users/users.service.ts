@@ -12,36 +12,40 @@ let users = [];
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: ICreateUserInput): IUser {
-    const newUser = { id: users.length + 1, ...createUserDto };
+  findOneAndUpdate(id: number, updateBody: IUpdateUserPartialInput): IUser {
+    const user = this.findOneById(id);
+    return this.updatePartially(user.id, updateBody);
+  }
+
+  create(dto: ICreateUserInput): IUser {
+    const newUser = { id: users.length + 1, ...dto };
     users.push(newUser);
     return newUser;
   }
 
-  findAll(): IUser[] {
+  findOneByEmail(email: string): IUser {
+    const user = users.find((user) => user.email === email);
+
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+    return user;
+  }
+
+  list(): IUser[] {
     return users;
   }
 
-  findOne(id: number): IUser {
+  findOneWithoutExeption(email: string): IUser {
+    return users.find((user) => user.email === email);
+  }
+
+  findOneById(id: number): IUser {
     const user = users.find((user) => user.id === id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
     return user;
-  }
-
-  findOneByUserName(userName: string): IUser {
-    const user = users.find((user) => user.userName === userName);
-
-    if (!user) {
-      throw new NotFoundException(`${userName} not found`);
-    }
-    return user;
-  }
-
-  findOneAndUpdate(id: number, updateBody: IUpdateUserPartialInput): IUser {
-    const user = this.findOne(id);
-    return this.updatePartially(user.id, updateBody);
   }
 
   updatePartially(id: number, dto: IUpdateUserPartialInput): IUser {
