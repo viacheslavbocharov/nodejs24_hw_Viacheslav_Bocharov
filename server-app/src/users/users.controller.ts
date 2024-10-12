@@ -23,8 +23,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get(':id')
-  getUser(@Param('id', ParseIntPipe) id: number): IUser {
-    return this.usersService.findOneById(id);
+  async getUser(@Param('id', ParseIntPipe) id: number): Promise<IUser> {
+    return await this.usersService.findOneById(id);
   }
 
   @Get()
@@ -33,8 +33,8 @@ export class UsersController {
   }
 
   @Post()
-  create(@Body() createUserInputDto: CreateUserInputDto): IUser {
-    return this.usersService.create(createUserInputDto);
+  async create(@Body() createUserInputDto: CreateUserInputDto): Promise<void> {
+    await this.usersService.create(createUserInputDto);
   }
 
   @Patch(':id')
