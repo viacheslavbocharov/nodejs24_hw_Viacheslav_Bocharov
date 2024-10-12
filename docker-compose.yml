@@ -1,0 +1,10 @@
+version: "v2.29.2-desktop.2"
+services:
+  nest-server:
+    build: ./server-app
+    container_name: nest-server
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./server-app:/app
+      - /app/node_modules

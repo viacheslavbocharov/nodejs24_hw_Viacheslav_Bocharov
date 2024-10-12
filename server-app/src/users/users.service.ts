@@ -7,20 +7,27 @@ import { IUser } from './interfaces/user.interface';
 import { ICreateUserInput } from './interfaces/create-user-input.interface';
 import { IUpdateUserInput } from './interfaces/update-user-input.interface';
 import { IUpdateUserPartialInput } from './interfaces/update-user-partial-input.interface';
+import { MongooseDatabaseModule } from '../database/mongoose-database.module';
 
 let users = [];
 
 @Injectable()
 export class UsersService {
-  findOneAndUpdate(id: number, updateBody: IUpdateUserPartialInput): IUser {
-    const user = this.findOneById(id);
+  constructor(private readonly db: MongooseDatabaseModule) {
+    this.db.connect();
+  }
+
+  async findOneAndUpdate(
+    id: number,
+    updateBody: IUpdateUserPartialInput,
+  ): Promise<IUser> {
+    const user = await this.findOneById(id);
     return this.updatePartially(user.id, updateBody);
   }
 
-  create(dto: ICreateUserInput): IUser {
+  async create(dto: ICreateUserInput): Promise<void> {
     const newUser = { id: users.length + 1, ...dto };
-    users.push(newUser);
-    return newUser;
+    await this.db.insertOne('users', newUser);
   }
 
   findOneByEmail(email: string): IUser {
@@ -40,8 +47,9 @@ export class UsersService {
     return users.find((user) => user.email === email);
   }
 
-  findOneById(id: number): IUser {
-    const user = users.find((user) => user.id === id);
+  async findOneById(id: number): Promise<any> {
+    // const user = users.find((user) => user.id === id);
+    const user = await this.db.findOne('users', id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
