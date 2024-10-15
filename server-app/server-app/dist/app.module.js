@@ -20,6 +20,7 @@ const auth_module_1 = require("./auth/auth.module");
 const config_1 = require("@nestjs/config");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
+const file_module_1 = require("./file/file.module");
 let AppModule = AppModule_1 = class AppModule {
     constructor() {
         this.logger = new common_1.Logger(AppModule_1.name);
@@ -44,6 +45,7 @@ exports.AppModule = AppModule = AppModule_1 = __decorate([
             users_module_1.UsersModule,
             auth_module_1.AuthModule,
             mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI),
+            file_module_1.FileModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
