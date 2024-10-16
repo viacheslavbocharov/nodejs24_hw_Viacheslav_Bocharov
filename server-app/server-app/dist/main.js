@@ -10,7 +10,7 @@ async function bootstrap() {
         .setTitle('Nest app')
         .setDescription('The Nest API description')
         .setVersion('1.0')
-        .addTag('cats')
+        .addTag('users')
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api', app, document);

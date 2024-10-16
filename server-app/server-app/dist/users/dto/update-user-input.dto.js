@@ -10,23 +10,53 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateUserInputDto = void 0;
+const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class UpdateUserInputDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { firstName: { required: true, type: () => String, nullable: true }, lastName: { required: true, type: () => String, nullable: true }, age: { required: true, type: () => Number, nullable: true }, isStudent: { required: true, type: () => Boolean, nullable: true } };
+    }
 }
 exports.UpdateUserInputDto = UpdateUserInputDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: 'John',
+        description: 'The first name of the user',
+        required: false,
+        nullable: true,
+    }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateUserInputDto.prototype, "firstName", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: 'Doe',
+        description: 'The last name of the user',
+        required: false,
+        nullable: true,
+    }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateUserInputDto.prototype, "lastName", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: 25,
+        description: 'The age of the user',
+        required: false,
+        nullable: true,
+        minimum: 0,
+    }),
     (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
 ], UpdateUserInputDto.prototype, "age", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: true,
+        description: 'Is the user a student',
+        required: false,
+        nullable: true,
+    }),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpdateUserInputDto.prototype, "isStudent", void 0);
