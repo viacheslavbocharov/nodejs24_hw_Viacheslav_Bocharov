@@ -1,0 +1,37 @@
+version: "v2.29.2-desktop.2"
+services:
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+  
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    depends_on:
+      - mongodb
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_SERVER: mongodb
+  
+  server-app:
+    build: .
+    container_name: server-app
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongodb
+    environment:
+      MONGO_URI: mongodb+srv://viacheslavbocharov:QtCWxNK4TTSI8CLw@test-cluster.q9vfi.mongodb.net/?retryWrites=true&w=majority&appName=Test-Cluster
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:dev
