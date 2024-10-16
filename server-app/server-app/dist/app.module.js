@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var AppModule_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
@@ -19,7 +22,7 @@ const users_module_1 = require("./users/users.module");
 const auth_module_1 = require("./auth/auth.module");
 const config_1 = require("@nestjs/config");
 const mongoose_1 = require("@nestjs/mongoose");
-const mongoose_2 = require("mongoose");
+const mongoose_2 = __importDefault(require("mongoose"));
 const file_module_1 = require("./file/file.module");
 let AppModule = AppModule_1 = class AppModule {
     constructor() {
